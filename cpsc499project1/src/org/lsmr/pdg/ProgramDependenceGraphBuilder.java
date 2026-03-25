@@ -1,0 +1,26 @@
+package org.lsmr.pdg;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.lsmr.cfg.ControlFlowGraph;
+import org.lsmr.cfg.Node;
+
+public class ProgramDependenceGraphBuilder {
+
+    public ProgramDependenceGraph build(ControlFlowGraph cfg) {
+        ProgramDependenceGraph pdg = new ProgramDependenceGraph();
+        Map<Node, PDGNode> map = new HashMap<>();
+
+        for (Node cfgNode : cfg.nodes()) {
+            PDGNode pdgNode = new PDGNode(cfgNode);
+            pdg.addNode(pdgNode);
+            map.put(cfgNode, pdgNode);
+        }
+
+        ControlDependenceBuilder controlBuilder = new ControlDependenceBuilder();
+        controlBuilder.addControlDependences(cfg, pdg, map);
+
+        return pdg;
+    }
+}

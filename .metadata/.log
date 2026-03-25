@@ -1,0 +1,19 @@
+!SESSION 2026-03-20 20:06:46.451 -----------------------------------------------
+eclipse.buildId=4.39.0.20260305-0817
+java.version=21.0.10
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=macosx, ARCH=x86_64, WS=cocoa, NL=en_CA
+Framework arguments:  -product org.eclipse.epp.package.java.product -keyring /Users/jokkuon/.eclipse_keyring
+Command-line arguments:  -os macosx -ws cocoa -arch x86_64 -product org.eclipse.epp.package.java.product -keyring /Users/jokkuon/.eclipse_keyring
+
+!ENTRY ch.qos.logback.classic 1 0 2026-03-20 20:06:52.740
+!MESSAGE Activated before the state location was initialized. Retry after the state location is initialized.
+
+!ENTRY ch.qos.logback.classic 1 0 2026-03-23 12:45:32.549
+!MESSAGE Logback config file: /Users/jokkuon/Documents/CPSC 499.02/.metadata/.plugins/org.eclipse.m2e.logback/logback.2.7.101.20251017-1242.xml
+
+!ENTRY org.eclipse.ui 4 4 2026-03-23 12:45:38.253
+!MESSAGE Referenced part does not exist yet: org.eclipse.ui.views.TaskList.
+
+!ENTRY org.eclipse.ui 4 4 2026-03-23 12:45:38.259
+!MESSAGE Referenced part does not exist yet: org.eclipse.ui.views.TaskList.

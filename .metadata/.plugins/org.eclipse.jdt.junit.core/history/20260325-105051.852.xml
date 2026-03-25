@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="CFGBuilderSmokeTest" project="cpsc499project1" tests="1" started="1" failures="0" errors="1" ignored="0">
+  <testsuite name="org.lsmr.pdg.CFGBuilderSmokeTest" time="0.014" displayname="CFGBuilderSmokeTest" uniqueid="[engine:junit-jupiter]/[class:org.lsmr.pdg.CFGBuilderSmokeTest]">
+    <testcase name="buildsAtLeastOneCFG" classname="org.lsmr.pdg.CFGBuilderSmokeTest" time="0.014" displayname="buildsAtLeastOneCFG()" uniqueid="[engine:junit-jupiter]/[class:org.lsmr.pdg.CFGBuilderSmokeTest]/[method:buildsAtLeastOneCFG()]">
+      <error>java.nio.file.NoSuchFileException: sample/IfTest.java
+	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+	at java.base/sun.nio.fs.UnixFileAttributeViews$Basic.readAttributes(UnixFileAttributeViews.java:55)
+	at java.base/sun.nio.fs.UnixFileSystemProvider.readAttributes(UnixFileSystemProvider.java:171)
+	at java.base/java.nio.file.Files.readAttributes(Files.java:1854)
+	at java.base/java.nio.file.Files.size(Files.java:2463)
+	at org.antlr.v4.runtime.CharStreams.fromPath(CharStreams.java:86)
+	at org.antlr.v4.runtime.CharStreams.fromPath(CharStreams.java:76)
+	at org.lsmr.pdg.Main.buildCFGs(Main.java:52)
+	at org.lsmr.pdg.CFGBuilderSmokeTest.buildsAtLeastOneCFG(CFGBuilderSmokeTest.java:19)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+
+</error>
+    </testcase>
+  </testsuite>
+</testrun>
