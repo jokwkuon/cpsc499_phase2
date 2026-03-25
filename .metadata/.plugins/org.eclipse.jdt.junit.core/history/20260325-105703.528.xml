@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><testrun name="CFGStructureTest" project="cpsc499project1" tests="3" started="3" failures="0" errors="0" ignored="0">
-  <testsuite name="org.lsmr.pdg.CFGStructureTest" time="0.199" displayname="CFGStructureTest" uniqueid="[engine:junit-jupiter]/[class:org.lsmr.pdg.CFGStructureTest]">
-    <testcase name="ifTestHasBranchEdge" classname="org.lsmr.pdg.CFGStructureTest" time="0.185" displayname="ifTestHasBranchEdge()" uniqueid="[engine:junit-jupiter]/[class:org.lsmr.pdg.CFGStructureTest]/[method:ifTestHasBranchEdge()]"/>
-    <testcase name="cfgHasNodes" classname="org.lsmr.pdg.CFGStructureTest" time="0.006" displayname="cfgHasNodes()" uniqueid="[engine:junit-jupiter]/[class:org.lsmr.pdg.CFGStructureTest]/[method:cfgHasNodes()]"/>
-    <testcase name="ifTestHasIfNode" classname="org.lsmr.pdg.CFGStructureTest" time="0.004" displayname="ifTestHasIfNode()" uniqueid="[engine:junit-jupiter]/[class:org.lsmr.pdg.CFGStructureTest]/[method:ifTestHasIfNode()]"/>
-  </testsuite>
-</testrun>
