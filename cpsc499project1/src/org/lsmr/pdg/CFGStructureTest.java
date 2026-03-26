@@ -12,7 +12,7 @@ public class CFGStructureTest {
 
     @Test
     void ifTestHasIfNode() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("src/IfTest.java");
+        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfTest.java");
 
         boolean foundIfNode = false;
         for (Node node : cfg.nodes()) {
@@ -27,7 +27,7 @@ public class CFGStructureTest {
 
     @Test
     void ifTestHasBranchEdge() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("src/IfTest.java");
+        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfTest.java");
 
         boolean foundBranch = false;
         for (Edge edge : cfg.edges()) {
@@ -43,7 +43,7 @@ public class CFGStructureTest {
 
     @Test
     void cfgHasNodes() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("src/IfTest.java");
+        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfTest.java");
         assertFalse(cfg.nodes().isEmpty());
     }
 }

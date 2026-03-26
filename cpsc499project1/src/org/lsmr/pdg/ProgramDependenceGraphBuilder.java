@@ -21,6 +21,9 @@ public class ProgramDependenceGraphBuilder {
         ControlDependenceBuilder controlBuilder = new ControlDependenceBuilder();
         controlBuilder.addControlDependences(cfg, pdg, map);
 
+        DataDependenceBuilder dataBuilder = new DataDependenceBuilder();
+        dataBuilder.addDataDependences(cfg, pdg, map);
+
         return pdg;
     }
 }

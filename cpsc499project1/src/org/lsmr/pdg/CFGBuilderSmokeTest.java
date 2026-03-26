@@ -14,7 +14,7 @@ public class CFGBuilderSmokeTest {
 
     @Test
     void buildsAtLeastOneCFG() throws Exception {
-        Path input = Paths.get("src/IfTest.java");
+        Path input = Paths.get("sample/IfTest.java");
 
         List<ControlFlowGraph> cfgs = Main.buildCFGs(input);
 
