@@ -1,6 +1,8 @@
 package org.lsmr.pdg;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -32,8 +34,21 @@ public class Main {
             System.out.println("Built " + cfgs.size() + " CFG(s) from: " + input);
             System.out.println();
 
+            ProgramDependenceGraphBuilder pdgBuilder = new ProgramDependenceGraphBuilder();
+
             for (ControlFlowGraph cfg : cfgs) {
                 printCFG(cfg);
+
+                ProgramDependenceGraph pdg = pdgBuilder.build(cfg);
+                printPDG(pdg);
+
+                // Write DOT file next to the input file (no hardcoded directory).
+                String safeName = cfg.name().replaceAll("[^A-Za-z0-9_]", "_");
+                Path outDir = input.toAbsolutePath().getParent();
+                Path dotFile = outDir.resolve(safeName + "_pdg.dot");
+                Files.write(dotFile, toDot(pdg, cfg.name()).getBytes(StandardCharsets.UTF_8));
+
+                System.out.println("Wrote DOT file: " + dotFile);
                 System.out.println("--------------------------------------------------");
             }
         } catch (IOException e) {
@@ -41,12 +56,15 @@ public class Main {
             e.printStackTrace();
             System.exit(2);
         } catch (Exception e) {
-            System.err.println("Failed to parse/build CFG for: " + input);
+            System.err.println("Failed to parse/build CFG or PDG for: " + input);
             e.printStackTrace();
             System.exit(3);
         }
     }
 
+    /**
+     * Parses a Java 1.2 source file and returns one CFG per method.
+     */
     public static List<ControlFlowGraph> buildCFGs(Path inputFile) throws IOException {
         Java1_2ANTLRLexer lexer =
             new Java1_2ANTLRLexer(CharStreams.fromPath(inputFile));
@@ -62,38 +80,65 @@ public class Main {
     }
 
     private static void printCFG(ControlFlowGraph cfg) {
-        System.out.println("CFG name: " + cfg.name());
-        System.out.println("Entry: " + cfg.entry.label());
-        System.out.println("Normal exit: " + cfg.normalExit.label());
-        System.out.println("Abrupt exit: " + cfg.abruptExit.label());
-        System.out.println();
-
+        System.out.println("=== CFG: " + cfg.name() + " ===");
         System.out.println("Nodes:");
         for (Node node : cfg.nodes()) {
             System.out.println("  " + node.label());
         }
-
-        System.out.println();
         System.out.println("Edges:");
         for (Edge edge : cfg.edges()) {
-            String label = edge.label().toString();
+            String lbl   = edge.label().toString();
             String extra = edge.extendedLabel();
-
-            String edgeText = "  " + edge.source().label()
-                + " -> "
-                + (edge.target() == null ? "null" : edge.target().label());
-
-            if (!label.isEmpty()) {
-                edgeText += " [" + label;
-                if (extra != null && !extra.isEmpty()) {
-                    edgeText += ": " + extra;
-                }
-                edgeText += "]";
+            String text  = "  " + edge.source().label()
+                         + " -> "
+                         + (edge.target() == null ? "null" : edge.target().label());
+            if (!lbl.isEmpty()) {
+                text += " [" + lbl;
+                if (extra != null && !extra.isEmpty()) text += ": " + extra;
+                text += "]";
             }
+            System.out.println(text);
+        }
+        System.out.println();
+    }
 
-            System.out.println(edgeText);
+    private static void printPDG(ProgramDependenceGraph pdg) {
+        System.out.println("PDG Edges:");
+        for (PDGEdge edge : pdg.getEdges()) {
+            System.out.println("  " + edge);
+        }
+        System.out.println();
+    }
+
+    /**
+     * Produces a Graphviz DOT representation of the PDG.
+     */
+    private static String toDot(ProgramDependenceGraph pdg, String name) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("digraph ").append(name.replaceAll("[^A-Za-z0-9_]", "_")).append(" {\n");
+        sb.append("  rankdir=TB;\n");
+
+        java.util.Map<PDGNode, String> ids = new java.util.HashMap<>();
+        int i = 0;
+        for (PDGNode node : pdg.getNodes()) {
+            String id = "n" + i++;
+            ids.put(node, id);
+            sb.append("  ").append(id)
+              .append(" [label=\"").append(node.getLabel().replace("\"", "\\\"")).append("\"];\n");
         }
 
-        System.out.println();
+        for (PDGEdge edge : pdg.getEdges()) {
+            String from = ids.get(edge.getFrom());
+            String to   = ids.get(edge.getTo());
+            if (from == null || to == null) continue; // safety guard
+            String lbl = edge.getType() == PDGEdge.Type.DATA
+                       ? "DATA(" + edge.getVariable() + ")"
+                       : "CONTROL";
+            sb.append("  ").append(from).append(" -> ").append(to)
+              .append(" [label=\"").append(lbl).append("\"];\n");
+        }
+
+        sb.append("}\n");
+        return sb.toString();
     }
 }

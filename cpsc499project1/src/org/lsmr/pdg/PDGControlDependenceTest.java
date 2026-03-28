@@ -1,78 +1,95 @@
 package org.lsmr.pdg;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-import org.lsmr.cfg.ControlFlowGraph;
 
 public class PDGControlDependenceTest {
 
     @Test
-    void ifTestProducesAtLeastOneControlDependence() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfTest.java");
-
-        ProgramDependenceGraphBuilder builder = new ProgramDependenceGraphBuilder();
-        ProgramDependenceGraph pdg = builder.build(cfg);
-
-        boolean foundControl = pdg.getEdges().stream()
-                .anyMatch(e -> e.getType() == PDGEdge.Type.CONTROL);
-
-        assertTrue(foundControl);
+    void ifBodyIsControlDependentOnIfCondition() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfTest.java");
+        assertTrue(PDGTestUtils.hasControlEdge(pdg, "if", "x = 1"),
+                   "Expected control edge: if -> x = 1 (true branch body)");
     }
 
     @Test
-    void ifTestHasControlEdgeFromIfNode() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfTest.java");
-
-        ProgramDependenceGraphBuilder builder = new ProgramDependenceGraphBuilder();
-        ProgramDependenceGraph pdg = builder.build(cfg);
-
-        boolean foundIfSource = pdg.getEdges().stream()
-                .filter(e -> e.getType() == PDGEdge.Type.CONTROL)
-                .anyMatch(e -> e.getFrom().getLabel().contains("if"));
-
-        assertTrue(foundIfSource);
+    void ifTestProducesAtLeastOneControlEdge() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfTest.java");
+        long count = pdg.getEdges().stream()
+                .filter(e -> e.getType() == PDGEdge.Type.CONTROL).count();
+        assertTrue(count >= 1, "Expected at least one control edge");
     }
 
     @Test
-    void ifElseHasControlEdgeFromIfNode() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfElseTest.java");
+    void ifElseTrueBranchIsControlDependent() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfElseTest.java");
+        assertTrue(PDGTestUtils.hasControlEdge(pdg, "if", "y = 1"),
+                   "Expected control edge: if -> y = 1 (true branch)");
+    }
 
-        ProgramDependenceGraphBuilder builder = new ProgramDependenceGraphBuilder();
-        ProgramDependenceGraph pdg = builder.build(cfg);
-
-        boolean foundIfSource = pdg.getEdges().stream()
-                .filter(e -> e.getType() == PDGEdge.Type.CONTROL)
-                .anyMatch(e -> e.getFrom().getLabel().contains("if"));
-
-        assertTrue(foundIfSource);
+    @Test
+    void ifElseFalseBranchIsControlDependent() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfElseTest.java");
+        assertTrue(PDGTestUtils.hasControlEdge(pdg, "if", "y = 2"),
+                   "Expected control edge: if -> y = 2 (false branch)");
     }
 
     @Test
     void ifElseProducesAtLeastTwoControlEdges() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/IfElseTest.java");
-
-        ProgramDependenceGraphBuilder builder = new ProgramDependenceGraphBuilder();
-        ProgramDependenceGraph pdg = builder.build(cfg);
-
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfElseTest.java");
         long count = pdg.getEdges().stream()
-                .filter(e -> e.getType() == PDGEdge.Type.CONTROL)
-                .count();
-
-        assertTrue(count >= 2);
+                .filter(e -> e.getType() == PDGEdge.Type.CONTROL).count();
+        assertTrue(count >= 2, "Expected at least two control edges for if-else");
     }
 
     @Test
-    void whileHasControlEdgeFromWhileNode() throws Exception {
-        ControlFlowGraph cfg = PDGTestUtils.firstCFG("sample/WhileTest.java");
+    void whileBodyIsControlDependentOnCondition() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/WhileTest.java");
+        assertTrue(PDGTestUtils.hasControlEdge(pdg, "while", "x = x + 1"),
+                   "Expected control edge: while -> x = x + 1");
+    }
 
-        ProgramDependenceGraphBuilder builder = new ProgramDependenceGraphBuilder();
-        ProgramDependenceGraph pdg = builder.build(cfg);
+    @Test
+    void whileTestProducesAtLeastOneControlEdge() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/WhileTest.java");
+        long count = pdg.getEdges().stream()
+                .filter(e -> e.getType() == PDGEdge.Type.CONTROL).count();
+        assertTrue(count >= 1, "Expected at least one control edge for while loop");
+    }
 
-        boolean foundWhileSource = pdg.getEdges().stream()
-                .filter(e -> e.getType() == PDGEdge.Type.CONTROL)
-                .anyMatch(e -> e.getFrom().getLabel().contains("while"));
+    @Test
+    void straightLineCodeHasNoControlEdges() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/DefUseTest.java");
+        long count = pdg.getEdges().stream()
+                .filter(e -> e.getType() == PDGEdge.Type.CONTROL).count();
+        assertTrue(count == 0, "Straight-line code should produce no control edges");
+    }
 
-        assertTrue(foundWhileSource);
+    @Test
+    void noBookkeepingNodesInPDG() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfTest.java");
+        for (PDGNode node : pdg.getNodes()) {
+            String lbl = node.getLabel();
+            assertFalse(lbl.equals("*ENTRY*") || lbl.equals("*EXIT*") || lbl.equals("*THROWN*"),
+                        "Bookkeeping node must not appear in the PDG: " + lbl);
+        }
+    }
+
+    @Test
+    void nodeAfterIfElseIsNotControlDependent() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/IfElseTest.java");
+        assertFalse(PDGTestUtils.hasControlEdge(pdg, "if", "int x = 0"),
+                    "int x = 0 should not be control dependent on the if");
+        assertFalse(PDGTestUtils.hasControlEdge(pdg, "if", "int y = 0"),
+                    "int y = 0 should not be control dependent on the if");
+    }
+
+    @Test
+    void initNotControlDependentOnWhile() throws Exception {
+        ProgramDependenceGraph pdg = PDGTestUtils.buildPDG("sample/WhileTest.java");
+        assertFalse(PDGTestUtils.hasControlEdge(pdg, "while", "int x = 0"),
+                    "int x = 0 should not be control dependent on while");
     }
 }
